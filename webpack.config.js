@@ -5,7 +5,7 @@ module.exports = async function (env, argv) {
     {
       ...env,
       babel: {
-        dangerouslyAddModulePathsToTranspile: ["nativewind"],
+        dangerouslyAddModulePathsToTranspile: ["nativewind", "@tensorflow"],
       },
     },
     argv
