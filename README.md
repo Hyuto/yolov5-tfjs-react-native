@@ -18,6 +18,24 @@ Tested platforms.
 |    Ios    |             ![ios](https://img.shields.io/badge/Unknown-red?logo=ios)              | Can't afford ☕      |
 |    Web    |          ![android](https://img.shields.io/badge/Passed-blue?logo=react)           | Backend : `webgl`    |
 
+## Setup
+
+Install main dependencies.
+
+```bash
+$ yarn
+```
+
+**Android**
+
+Build android app
+
+```bash
+$ yarn android
+```
+
+> :warning: Need to build the app! Can't use Expo Go.
+
 ## Styling
 
 Styling using `tailwindcss` via [`nativewind`](https://www.nativewind.dev/).
