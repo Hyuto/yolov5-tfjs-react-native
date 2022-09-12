@@ -1,4 +1,5 @@
 const createExpoWebpackConfigAsync = require("@expo/webpack-config");
+const CopyWebpackPlugin = require("copy-webpack-plugin");
 
 module.exports = async function (env, argv) {
   const config = await createExpoWebpackConfigAsync(
@@ -15,6 +16,13 @@ module.exports = async function (env, argv) {
     test: /\.css$/i,
     use: ["postcss-loader"],
   });
+
+  // Copy model to static file
+  config.plugins.push(
+    new CopyWebpackPlugin({
+      patterns: [{ from: "assets/yolov5n/*", to: "model/yolov5n/[name].[ext]" }],
+    })
+  );
 
   return config;
 };

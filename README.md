@@ -12,13 +12,15 @@ Object Detection using YOLOv5 on multiplatform using `tensorflowjs` and `react-n
 
 Tested platforms.
 
-| Platforms |                                       Status                                       |                      |
-| :-------: | :--------------------------------------------------------------------------------: | :------------------- |
-|  Android  | ![android](https://img.shields.io/badge/Passed-green?logo=android&logoColor=white) | Backend : `rn-webgl` |
-|    Ios    |             ![ios](https://img.shields.io/badge/Unknown-red?logo=ios)              | Can't afford ☕      |
-|    Web    |          ![android](https://img.shields.io/badge/Passed-blue?logo=react)           | Backend : `webgl`    |
+| Platforms |                                       Status                                       |                                                |
+| :-------: | :--------------------------------------------------------------------------------: | :--------------------------------------------- |
+|  Android  | ![android](https://img.shields.io/badge/Passed-green?logo=android&logoColor=white) | Backend : `rn-webgl`                           |
+|    Ios    |             ![ios](https://img.shields.io/badge/Unknown-red?logo=ios)              | Can't afford ☕                                |
+|    Web    |           ![android](https://img.shields.io/badge/Fail-blue?logo=react)            | Backend : `webgl`, `expo-camera` not supported |
 
-## Setup
+## Run on Expo Go
+
+**Setup**
 
 Install main dependencies.
 
@@ -26,15 +28,19 @@ Install main dependencies.
 $ yarn
 ```
 
-**Android**
-
-Build android app
+**Run the app~~**
 
 ```bash
-$ yarn android
+$ yarn start
 ```
 
-> :warning: Need to build the app! Can't use Expo Go.
+Open `Expo Go` app in your device and scan the QR code.
+
+**Open WebApp**
+
+```bash
+$ yarn web
+```
 
 ## Styling
 

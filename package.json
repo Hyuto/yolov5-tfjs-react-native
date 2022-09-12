@@ -3,7 +3,7 @@
   "version": "1.0.0",
   "main": "./index.js",
   "scripts": {
-    "start": "expo start --dev-client",
+    "start": "expo start",
     "android": "expo run:android",
     "ios": "expo run:ios",
     "web": "expo start --web"
@@ -29,6 +29,7 @@
   "devDependencies": {
     "@babel/core": "^7.12.9",
     "autoprefixer": "^10.4.8",
+    "copy-webpack-plugin": "6.3.2",
     "postcss": "^8.4.16",
     "postcss-loader": "4.2.0",
     "tailwindcss": "^3.1.8"
