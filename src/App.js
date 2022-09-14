@@ -1,56 +1,47 @@
 import React, { useEffect, useState } from "react";
 import { Text, TouchableOpacity, View } from "react-native";
 import { Camera, CameraType } from "expo-camera";
+import { GLView } from "expo-gl";
+import Expo2DContext from "expo-2d-context";
 import { StatusBar } from "expo-status-bar";
 import { MaterialCommunityIcons } from "@expo/vector-icons";
 import * as tf from "@tensorflow/tfjs";
 import "@tensorflow/tfjs-react-native";
 import { cameraWithTensors } from "@tensorflow/tfjs-react-native";
 import { loadModel } from "./modelHandler";
-import "./styles";
-
-/* 
-TODO:
-- Make separate camera view for android and web
-- Make separate detection function for android and web
-- use callbacks and memo for better computation
- */
+import { renderBoxes } from "./utils/renderBox";
 
 const TensorCamera = cameraWithTensors(Camera);
 
 const App = () => {
-  const [model, setModel] = useState(null);
   const [hasPermission, setHasPermission] = useState(null);
   const [type, setType] = useState(CameraType.back);
+  const [model, setModel] = useState(null);
+  const [inputTensor, setInputTensor] = useState([]);
+  const [ctx, setCTX] = useState(null);
 
-  // Model Config
-  const [modelWidth, modelHeight] = [640, 640];
+  // model configuration
+  const threshold = 0.25;
 
   const cameraStream = (images) => {
-    /**
-     * Function to detect every frame loaded from webcam in video tag.
-     * @param {tf.GraphModel} model loaded YOLOv5 tensorflow.js model
-     */
     const detectFrame = async () => {
       tf.engine().startScope();
       const input = tf.tidy(() => {
         return tf.image
-          .resizeBilinear(images.next().value, [modelWidth, modelHeight])
+          .resizeBilinear(images.next().value, [inputTensor[1], inputTensor[2]])
           .div(255.0)
           .expandDims(0);
       });
 
-      await model.executeAsync(input).then((res) => {
+      await model.executeAsync(input).then(async (res) => {
         const [boxes, scores, classes] = res.slice(0, 3);
         const boxes_data = boxes.dataSync();
         const scores_data = scores.dataSync();
         const classes_data = classes.dataSync();
-        console.log(boxes_data);
-        // TODO: implements box rendering
-        //renderBoxes(canvasRef, threshold, boxes_data, scores_data, classes_data);
-        tf.dispose(res);
-      });
+        renderBoxes(ctx, threshold, boxes_data, scores_data, classes_data);
 
+        tf.dispose([res, input]);
+      });
       requestAnimationFrame(detectFrame); // get another frame
       tf.engine().endScope();
     };
@@ -63,7 +54,14 @@ const App = () => {
       const { status } = await Camera.requestCameraPermissionsAsync();
       setHasPermission(status === "granted");
       tf.ready().then(() => {
-        loadModel().then((loadedModel) => {
+        loadModel().then(async (loadedModel) => {
+          // warming up model
+          const dummyInput = tf.ones(loadedModel.inputs[0].shape);
+          await loadedModel.executeAsync(dummyInput);
+          tf.dispose(dummyInput);
+
+          // set state
+          setInputTensor(loadedModel.inputs[0].shape);
           setModel(loadedModel);
         });
       });
@@ -72,22 +70,34 @@ const App = () => {
 
   return (
     <View className="flex-1 items-center justify-center bg-white">
-      {model ? (
+      {hasPermission ? (
         <>
-          {hasPermission ? (
+          {model ? (
             <View className="flex-1 w-full h-full">
               <View className="flex-1 w-full h-full z-0 items-center">
-                <TensorCamera
-                  // Standard Camera props
+                {ctx && (
+                  <TensorCamera
+                    // Standard Camera props
+                    className="w-full max-w-screen-sm h-full"
+                    type={type}
+                    // Tensor related props
+                    //use_custom_shaders_to_resize={true}
+                    resizeHeight={inputTensor[1]}
+                    resizeWidth={inputTensor[2]}
+                    resizeDepth={inputTensor[3]}
+                    onReady={cameraStream}
+                    autorender={true}
+                  />
+                )}
+              </View>
+              <View className="absolute z-80 left-0 top-0 w-full h-full flex items-center bg-transparent">
+                <GLView
                   className="w-full max-w-screen-sm h-full"
-                  type={type}
-                  // Tensor related props
-                  use_custom_shaders_to_resize={true}
-                  resizeHeight={640}
-                  resizeWidth={640}
-                  resizeDepth={3}
-                  onReady={cameraStream}
-                  autorender={true}
+                  onContextCreate={async (gl) => {
+                    const ctx2d = new Expo2DContext(gl);
+                    await ctx2d.initializeText();
+                    setCTX(ctx2d);
+                  }}
                 />
               </View>
               <View className="absolute z-100 left-0 top-0 w-full h-full flex justify-end items-center bg-transparent">
@@ -110,12 +120,12 @@ const App = () => {
               </View>
             </View>
           ) : (
-            <Text className="text-lg">Permission not granted!</Text>
+            <Text className="text-lg">Loading model...</Text>
           )}
         </>
       ) : (
         <View>
-          <Text className="text-lg">Loading model...</Text>
+          <Text className="text-lg">Permission not granted!</Text>
         </View>
       )}
       <StatusBar style="auto" />

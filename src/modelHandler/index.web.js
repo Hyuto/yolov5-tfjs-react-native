@@ -6,6 +6,8 @@ import * as tf from "@tensorflow/tfjs";
  * see webpack.config.js
  */
 export const loadModel = async () => {
-  const loadedModel = await tf.loadGraphModel(`${window.location.origin}/model/yolov5n/model.json`);
+  const loadedModel = await tf.loadGraphModel(
+    `${window.location.origin}/model/yolov5n-320/model.json`
+  );
   return loadedModel;
 };

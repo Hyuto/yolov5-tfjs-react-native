@@ -20,7 +20,7 @@ module.exports = async function (env, argv) {
   // Copy model to static file
   config.plugins.push(
     new CopyWebpackPlugin({
-      patterns: [{ from: "assets/yolov5n/*", to: "model/yolov5n/[name].[ext]" }],
+      patterns: [{ from: "assets/model", to: "model" }],
     })
   );
 
