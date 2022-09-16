@@ -8,7 +8,14 @@ import labels from "./labels.json";
  * @param {Array} scores_data scores array
  * @param {Array} classes_data class array
  */
-export const renderBoxes = async (ctx, threshold, boxes_data, scores_data, classes_data) => {
+export const renderBoxes = async (
+  ctx,
+  threshold,
+  boxes_data,
+  scores_data,
+  classes_data,
+  flipX = true
+) => {
   ctx.clearRect(0, 0, ctx.width, ctx.height); // clean canvas
   const font = "40pt sans-serif";
   ctx.font = font;
@@ -27,7 +34,9 @@ export const renderBoxes = async (ctx, threshold, boxes_data, scores_data, class
       const height = y2 - y1;
 
       // flip horizontal
-      const x = ctx.width - x1 - width;
+      let x;
+      if (flipX) x = ctx.width - x1 - width;
+      else x = x1;
 
       // Draw the bounding box.
       // strokeRect not rendering!

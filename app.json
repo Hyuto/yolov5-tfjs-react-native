@@ -3,7 +3,6 @@
     "name": "yolov5-tfjs-react-native",
     "slug": "yolov5-tfjs-react-native",
     "version": "1.0.0",
-    "plugins": ["expo-camera"],
     "orientation": "portrait",
     "icon": "./assets/icon.png",
     "userInterfaceStyle": "light",

@@ -10,19 +10,18 @@ Object Detection using YOLOv5 on multiplatform using `tensorflowjs` and `react-n
 
 ## TODO
 
-- Make separate camera view for android and web (TensorCamera isn't supported inn web).
-- Make separate detection function for android and web
 - use callbacks and memo for better computation
+- Fixing canvas size leaking in web
 
 ## Platforms
 
 Tested platforms.
 
-| Platforms |                                       Status                                       |                                                 |
-| :-------: | :--------------------------------------------------------------------------------: | :---------------------------------------------- |
-|  Android  | ![android](https://img.shields.io/badge/Passed-green?logo=android&logoColor=white) | Backend : `rn-webgl`                            |
-|    Ios    |             ![ios](https://img.shields.io/badge/Unknown-red?logo=ios)              | Can't afford ☕                                 |
-|    Web    |           ![android](https://img.shields.io/badge/Fail-blue?logo=react)            | Backend : `webgl`, `TensorCamera` not supported |
+| Platforms |                                       Status                                       |                      |
+| :-------: | :--------------------------------------------------------------------------------: | :------------------- |
+|  Android  | ![android](https://img.shields.io/badge/Passed-green?logo=android&logoColor=white) | Backend : `rn-webgl` |
+|    Ios    |             ![ios](https://img.shields.io/badge/Unknown-red?logo=ios)              | Can't afford ☕      |
+|    Web    |          ![android](https://img.shields.io/badge/Passed-blue?logo=react)           | Backend : `webgl`    |
 
 ## Run on Expo Go
 
