@@ -1,4 +1,3 @@
-import { loadGraphModel } from "@tensorflow/tfjs";
 import { bundleResourceIO } from "@tensorflow/tfjs-react-native";
 
 // model path
@@ -12,7 +11,4 @@ const modelWeights = [
  * loadModel for Android and IOS
  * loading model via bundleResourceIO and assets
  */
-export const loadModel = async () => {
-  const loadedModel = await loadGraphModel(bundleResourceIO(modelJson, modelWeights));
-  return loadedModel;
-};
+export const modelURI = bundleResourceIO(modelJson, modelWeights);

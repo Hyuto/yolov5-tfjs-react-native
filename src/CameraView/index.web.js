@@ -1,10 +1,13 @@
 import { useEffect, useRef } from "react";
 import * as tf from "@tensorflow/tfjs";
+import { preprocess } from "../utils/preprocess";
 import { renderBoxes } from "../utils/renderBox";
 
-const CameraView = ({ type, model, inputTensorSize, ctx, config }) => {
+const CameraView = ({ type, model, inputTensorSize, config, children }) => {
   const videoRef = useRef(null);
+  const canvasRef = useRef(null);
   const frameRef = useRef(null);
+  const [modelHeight, modelWidth] = inputTensorSize.slice(1, 3);
   const typesMapper = { back: "environment", front: "user" };
 
   /**
@@ -13,13 +16,9 @@ const CameraView = ({ type, model, inputTensorSize, ctx, config }) => {
    */
   const detectFrame = async () => {
     tf.engine().startScope();
-    let [modelWidth, modelHeight] = inputTensorSize.slice(1, 3);
-    const input = tf.tidy(() => {
-      return tf.image
-        .resizeBilinear(tf.browser.fromPixels(videoRef.current), [modelWidth, modelHeight])
-        .div(255.0)
-        .expandDims(0);
-    });
+    const rawInput = tf.browser.fromPixels(videoRef.current);
+    const [input, xRatio, yRatio] = preprocess(rawInput, modelWidth, modelHeight);
+    const ctx = canvasRef.current.getContext("2d");
 
     await model.executeAsync(input).then((res) => {
       const [boxes, scores, classes] = res.slice(0, 3);
@@ -27,8 +26,8 @@ const CameraView = ({ type, model, inputTensorSize, ctx, config }) => {
       const scores_data = scores.dataSync();
       const classes_data = classes.dataSync();
 
-      renderBoxes(ctx, config.threshold, boxes_data, scores_data, classes_data, false);
-      tf.dispose([res, input]);
+      renderBoxes(ctx, config.threshold, boxes_data, scores_data, classes_data, [xRatio, yRatio]);
+      tf.dispose([res, input, rawInput]);
     });
 
     frameRef.current = requestAnimationFrame(detectFrame); // get another frame
@@ -48,25 +47,35 @@ const CameraView = ({ type, model, inputTensorSize, ctx, config }) => {
           if (videoRef.current.srcObject) {
             cancelAnimationFrame(frameRef.current);
             frameRef.current = null;
-            videoRef.current.srcObject = null;
-            window.localStream.getTracks().forEach((track) => {
+            videoRef.current.srcObject.getTracks().forEach((track) => {
               track.stop();
             });
-            window.localStream = null;
+            videoRef.current.srcObject = null;
           }
 
-          window.localStream = stream;
           videoRef.current.srcObject = stream;
-          videoRef.current.onloadedmetadata = () => {
-            detectFrame();
-          };
         });
     } else alert("Can't open Webcam!");
   }, [type]);
 
   return (
     <>
-      <video className="h-full" autoPlay playsInline muted ref={videoRef} />
+      <div className="relative">
+        <video
+          className="w-full max-w-screen-md max-h-fit rounded-lg"
+          autoPlay
+          muted
+          onPlay={() => detectFrame()}
+          ref={videoRef}
+        />
+        <canvas
+          className="absolute top-0 left-0 w-full h-full"
+          width={modelWidth}
+          height={modelHeight}
+          ref={canvasRef}
+        />
+        {children}
+      </div>
     </>
   );
 };
